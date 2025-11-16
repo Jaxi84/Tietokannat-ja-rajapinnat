@@ -1,0 +1,7 @@
+a) DELETE FROM pet where name='Puffball'; 
+b) UPDATE pet SET birth = '1998-08-31' WHERE name = 'Bowser';
+c) UPDATE pet SET death = '2000-09-15' Where name = 'Chirpy';
+d) SELECT * FROM pet WHERE birth >= '1990-1-1';
+e) SELECT * FROM pet WHERE sex = 'm';
+f) SELECT name FROM pet WHERE sex = 'm';
+g) Select name, owner FROM pet WHERE sex = 'm';
