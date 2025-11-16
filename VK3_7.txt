@@ -1,0 +1,14 @@
+7: Employees osa 2
+a) SELECT * FROM employees ORDER BY last_name ASC LIMIT 10;
+b) SELECT * FROM employees ORDER BY last_name ASC, first_name ASC LIMIT 10;
+c) SELECT * FROM employees ORDER BY hire_date DESC LIMIT 5;
+
+d) SELECT employees.first_name, employees.last_name, salaries.salary FROM employees JOIN salaries ON employees.emp_no = salaries.emp_no WHERE salaries.salary = (SELECT MAX(salary) FROM salaries);
+e) SELECT employees.first_name, employees.last_name, salaries.salary FROM employees JOIN salaries ON employees.emp_no = salaries.emp_no WHERE salaries.salary = (SELECT MIN(salary) FROM salaries);
+f) SELECT employees.first_name, employees.last_name, salaries.salary FROM employees JOIN salaries ON employees.emp_no = salaries.emp_no WHERE salaries.salary > 150000;
+g) SELECT COUNT(*) AS tyontekijat_sales FROM dept_emp JOIN departments ON dept_emp.dept_no = departments.dept_no WHERE departments.dept_name = 'Sales';
+SELECT COUNT(*) AS TyontekijatMarketing FROM dept_emp JOIN departments ON dept_emp.dept_no = departments.dept_no WHERE departments.dept_name = 'Marketing';
+h) SELECT emp.first_name, emp.last_name, dept.dept_name FROM dept_manager AS deptman JOIN employees AS emp ON deptman.emp_no = emp.emp_no JOIN departments AS dept ON deptman.dept_no = dept.dept_no;
+i) SELECT AVG(sal.salary) AS keskipalkka_sales FROM salaries AS sal JOIN dept_emp AS de_em ON sal.emp_no = de_em.emp_no JOIN departments AS dep ON de_em.dept_no = dep.dept_no WHERE dep.dept_name = 'Sales';
+SELECT AVG(sal.salary) AS keskipalkka_marketing FROM salaries AS sal JOIN dept_emp AS de_em ON sal.emp_no = de_em.emp_no JOIN departments AS dep ON de_em.dept_no = dep.dept_no WHERE dep.dept_name = 'Marketing';
+

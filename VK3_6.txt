@@ -1,0 +1,31 @@
+6: Pet ja owner
+//rikotaan pet taulusta owner pois, laitetaan key:t pet tauluun, luodaan owner taulu halutuilla tiedoilla ja laitetaan keyt
+ALTER TABLE pet DROP COLUMN owner;
+ALTER TABLE pet ADD COLUMN petID INT PRIMARY KEY AUTO_INCREMENT;
+ALTER TABLE pet ADD COLUMN ownerID INT;
+CREATE TABLE owner (first_name varchar(255), ownerID int PRIMARY KEY AUTO_INCREMENT);
+ALTER TABLE pet ADD CONSTRAINT FOREIGN KEY(ownerID) REFERENCES owner(ownerID);
+
+//luodaan käyttäjät owner tauluun
+INSERT INTO owner VALUES ( 'Harold', NULL);
+INSERT INTO owner VALUES ( 'Gwen', NULL);
+INSERT INTO owner VALUES ( 'Diane', NULL);
+INSERT INTO owner VALUES ( 'Benny', NULL);
+//ownerID: Harold=1, Gwen=2, Diane=3, Benny=4
+
+//päivitellää ownerID:t pet tauluun vaikka näin:
+UPDATE pet SET ownerID=1 WHERE name='Fluffy' OR name='Buffy';
+UPDATE pet SET ownerID=2 WHERE name='Claws';
+UPDATE pet SET ownerID=4 WHERE name='Fang' OR name='Slim';
+UPDATE pet SET ownerID=3 WHERE name='Bowser';
+UPDATE pet SET ownerID=2 WHERE name='Chirpy' OR name='Whistler';
+UPDATE pet SET ownerID=3 WHERE name='Puffball';
+
+//tarkastellaan tauluja eri tavoin
+SELECT * FROM owner JOIN pet ON owner.ownerID = pet.ownerID;
+SELECT * FROM owner JOIN pet ON owner.ownerID = pet.ownerID WHERE first_name='Harold';
+SELECT * FROM pet LEFT JOIN / RIGHT JOIN owner ON pet.ownerID = owner.ownerID; //valitse kumpi join left join / right join
+
+//näyttää taulujen describet, eli rakenteet
+desc pet;
+desc owner;

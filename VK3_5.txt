@@ -1,0 +1,9 @@
+5. Employees, osa 1
+a) SELECT * FROM departments;
+b) SELECT DISTINCT title FROM titles;
+c) SELECT MAX(salary) FROM salaries; SELECT MIN(salary) FROM salaries;
+d) SELECT AVG(salary) FROM salaries;
+e) SELECT first_name, last_name FROM employees WHERE last_name = 'Facello' ORDER BY first_name;
+f) SELECT COUNT(*) FROM employees WHERE birth_date BETWEEN '1950-01-01' AND '1959-12-31';
+g) SELECT gender, COUNT(*) FROM employees GROUP BY gender;
+tai SELECT COUNT(*) FROM employees WHERE gender = 'M'; ja SELECT COUNT(*) FROM employees WHERE gender = 'F';
