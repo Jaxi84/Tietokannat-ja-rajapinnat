@@ -1,0 +1,71 @@
+CREATE DATABASE arviointidb;
+
+GRANT ALL PRIVILEGES ON arviointidb.* TO 'testiuseri'@'localhost';
+FLUSH PRIVILEGES;
+
+USE arviointidb;
+
+-- luodaan taulu Opiskelija
+CREATE TABLE Opiskelija (
+    idOpiskelija INT AUTO_INCREMENT PRIMARY KEY,
+    Etunimi VARCHAR(45) NOT NULL,
+    Sukunimi VARCHAR(45) NOT NULL,
+    Osoite VARCHAR(45),
+    Luokkatunnus VARCHAR(45)
+);
+
+-- luodaan taulu Opintojakso
+CREATE TABLE Opintojakso (
+    idOpintojakso INT AUTO_INCREMENT PRIMARY KEY,
+    Koodi VARCHAR(45) NOT NULL,
+    Laajuus TINYINT,
+    Nimi VARCHAR(45) NOT NULL
+);
+
+-- luodaan taulu Arviointi
+CREATE TABLE Arviointi (
+    idArviointi INT AUTO_INCREMENT PRIMARY KEY,
+    Paivamaara DATE NOT NULL,
+    Arvosana TINYINT NOT NULL,
+    idOpiskelija INT NOT NULL,
+    idOpintojakso INT NOT NULL,
+    FOREIGN KEY (idOpiskelija) REFERENCES Opiskelija(idOpiskelija),
+    FOREIGN KEY (idOpintojakso) REFERENCES Opintojakso(idOpintojakso)
+);
+
+-- **auto_increment on käytössä**
+-- luodaan Opintojakso-tauluun kurssit
+INSERT INTO Opintojakso (Koodi, Laajuus, Nimi) VALUES
+('T20041', 3, 'Tietokannat'),
+('T20042', 3, 'Liike-elaman tapatietous'),
+('T20043', 3, 'Fysiikka 3'),
+('T20044', 6, 'Elektroniikan perusteet'),
+('T20045', 5, 'Kellarihumppa'),
+('T20046', 3, 'Matematiikka 2'),
+('T20047', 3, 'Ruotsin kieli'),
+('T20048', 3, 'VHDL-kieli');
+
+-- luodaan Opiskelija-tauluun hahmot
+INSERT INTO Opiskelija (Etunimi, Sukunimi, Osoite, Luokkatunnus) VALUES
+('Aku', 'Ankka', 'Paratiisitie 13', 'TTE3SNH'),
+('Roope', 'Ankka', 'Rahasäiliö', 'TTE3SNH'),
+('Iines', 'Ankka', 'Ankkalinna 315', 'TTE4SNL'),
+('Mikki', 'Hiiri', 'Hiiripolku 6', 'TTE2SNO'),
+('Hessu', 'Hopo', 'Hoponpolku 3', 'TTE2SNO');
+
+--luodaan Arviointi-tauluun arvioinnit
+INSERT INTO Arviointi (Paivamaara, Arvosana, idOpiskelija, idOpintojakso) VALUES
+('2014-09-05', 1, 1, 1),
+('2014-09-05', 1, 1, 3),
+('2014-09-05', 0, 1, 7),
+('2014-09-05', 4, 2, 1),
+('2014-09-05', 2, 2, 3),
+('2014-09-05', 4, 3, 1),
+('2014-09-05', 3, 3, 3),
+('2014-09-05', 5, 4, 1),
+('2014-09-05', 4, 4, 3),
+('2014-09-05', 5, 5, 3),
+('2014-09-05', 1, 5, 1);
+
+
+
