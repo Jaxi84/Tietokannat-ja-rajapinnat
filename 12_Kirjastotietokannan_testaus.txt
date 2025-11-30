@@ -1,0 +1,129 @@
+##Ainakin kaksi samaa kirjaa (pitää tallentua eri pääavaimille)
+#Luodaan muutama Kirja, jossa pääavain idTeos on sama:
+INSERT INTO kirja (Viivakoodi, Hylly, OnLainassa, idTeos)
+VALUES
+('VC2138', 'Hylly1', 0, 38),
+('VC2139', 'Hylly8', 0, 38),
+('VC2140', 'Hylly8', 0, 38),
+('VC2141', 'Hylly8', 0, 38);
+
+#katsotaan kirjat jotka ovat teosta idTeos 38
+SELECT * FROM kirja WHERE idTeos = 38;
++---------+------------+--------+------------+--------+
+| idKirja | Viivakoodi | Hylly  | OnLainassa | idTeos |
++---------+------------+--------+------------+--------+
+|      97 | VC2138     | Hylly7 |          0 |     38 |
+|      98 | VC2139     | Hylly8 |          0 |     38 |
+|      99 | VC2140     | Hylly5 |          0 |     38 |
+|     100 | VC2141     | Hylly3 |          0 |     38 |
++---------+------------+--------+------------+--------+
+
+
+#Lista jolla nähdään teokset joilla enempi kuin yksi tekijä ja tekijöiden nimet:
+SELECT te.Nimi AS Teos, GROUP_CONCAT(CONCAT(es.Etunimi, ' ', es.Sukunimi) SEPARATOR ', ') AS Tekijat
+FROM tekija_teos tt
+JOIN teos te ON tt.idTeos = te.idTeos
+JOIN tekija es ON tt.idTekija = es.idTekija
+GROUP BY te.idTeos, te.Nimi
+HAVING COUNT(tt.idTekija) > 1;
+
++---------------------+--------------------------------------------------+
+| Teos                | Tekijat                                          |
++---------------------+--------------------------------------------------+
+| Leijonakuningas     | Rob Minkoff, Roger Allers                        |
+| Aladdin             | Ron Clements, John Musker                        |
+| Kaunotar ja Hirviö  | Gary Trousdale, Kirk Wise                        |
+| Prinsessa Ruusunen  | Rob Minkoff, Carlos Lopez Estrada, Steve Hickner |
+| Pinokkio            | John Musker, Kevin Lima                          |
++---------------------+--------------------------------------------------+
+
+###*********************/////////\\\\\\\\\*********************###
+
+##Kirja, jossa on useampi kuin yksi tekijä.
+#Tekijän lisäys tekija_teos tauluun:
+SELECT * FROM teos WHERE idTeos = 23;
++--------+---------------------+------------------+---------------+
+| idTeos | Nimi                | ISBN             | Julkaisuvuosi |
++--------+---------------------+------------------+---------------+
+|     23 | Kaunotar ja Hirviö  | 978-951-000003-5 |          1991 |
++--------+---------------------+------------------+---------------+
+
+#luodana tekijät:
+INSERT INTO tekija (Etunimi, Sukunimi) VALUES ('Gary', 'Trousdale');
+INSERT INTO tekija (Etunimi, Sukunimi) VALUES ('Kirk', 'Wise');
+
+#katsotaan tekijöiden ID:t
+SELECT * FROM tekija ORDER BY idTekija DESC LIMIT 5;
++----------+---------+-----------+
+| idTekija | Etunimi | Sukunimi  |
++----------+---------+-----------+
+|       42 | Kirk    | Wise      |
+|       41 | Gary    | Trousdale |
+|       40 | Steve   | Hickner   |
+|       39 | Brenda  | Chapman   |
+|       38 | Mark    | Andrews   |
++----------+---------+-----------+
+
+#lisätään tekijät tekija_teos tauluun:
+INSERT INTO tekija_teos (idTekija, idTeos) VALUES (41, 23);
+INSERT INTO tekija_teos (idTekija, idTeos) VALUES (42, 23);
+
+#tarkistus
+SELECT * FROM tekija_teos WHERE idTeos = 23;
++----------+--------+
+| idTekija | idTeos |
++----------+--------+
+|       41 |     23 |
+|       42 |     23 |
++----------+--------+
+
+SELECT te.Nimi AS Teos, CONCAT(es.Etunimi, ' ', es.Sukunimi) AS Tekija
+FROM tekija_teos tt
+JOIN teos te ON tt.idTeos = te.idTeos
+JOIN tekija es ON tt.idTekija = es.idTekija
+WHERE tt.idTeos = 23;
++---------------------+----------------+
+| Teos                | Tekija         |
++---------------------+----------------+
+| Kaunotar ja Hirviö  | Gary Trousdale |
+| Kaunotar ja Hirviö  | Kirk Wise      |
++---------------------+----------------+
+
+
+###*********************/////////\\\\\\\\\*********************###
+
+##Lainaustapahtuma, jossa asiakas on lainannut kirjan ja se on vielä lainassa.
+#luodana lainaus:
+INSERT INTO lainaus (idKirja, idAsiakas, LainausPaiva, PalautusPaiva)
+VALUES (97, 1, '2025-11-28', NULL);
+
+#asikas 1 lainaa kirjan 97
+
+SELECT a.Etunimi AS AsiakasEtunimi, a.Sukunimi AS AsiakasSukunimi, te.Nimi AS Teos, k.Viivakoodi, k.Hylly
+FROM asiakas a JOIN kirja k ON k.idKirja = 97 JOIN teos te ON k.idTeos = te.idTeos WHERE a.idAsiakas = 1;
+
++----------------+-----------------+--------+------------+--------+
+| AsiakasEtunimi | AsiakasSukunimi | Teos   | Viivakoodi | Hylly  |
++----------------+-----------------+--------+------------+--------+
+| Aku            | Ankka           | Vaiana | VC2138     | Hylly1 |
++----------------+-----------------+--------+------------+--------+
+#Eli aku lainaa Vaianan
+
+#päivitetään kirjan on OnLainassa kenttä
+UPDATE kirja SET OnLainassa = 1 WHERE idKirja = 97;
+
+#tehdään tarkistus lainaus taulusta, onko palautuspäivää
+SELECT * FROM lainaus WHERE idKirja = 97;
++-----------+---------+-----------+--------------+---------------+
+| idLainaus | idKirja | idAsiakas | LainausPaiva | PalautusPaiva |
++-----------+---------+-----------+--------------+---------------+
+|       125 |      97 |         1 | 2025-11-28   | NULL          |
++-----------+---------+-----------+--------------+---------------+
+
+#tarkistetaan myös Kirja taulusta onko lainauksen OnLainassa status 1
+SELECT * FROM kirja WHERE idKirja = 97;
++---------+------------+--------+------------+--------+
+| idKirja | Viivakoodi | Hylly  | OnLainassa | idTeos |
++---------+------------+--------+------------+--------+
+|      97 | VC2138     | Hylly1 |          1 |     38 |
++---------+------------+--------+------------+--------+
