@@ -1,0 +1,70 @@
+DELIMITER $$ --koska useita puolipisteitä
+
+CREATE PROCEDURE `LisaaSuoritus` ( --piti olla nuo merkit tai ei ollenkaan '-merkki ei käy
+IN En VARCHAR(45),
+IN Sn VARCHAR(45),
+IN KK VARCHAR(45),
+IN Arvosana INT
+)
+
+-- Aliohjelman kutsu mysql:n komentoriviltä:
+-- CALL LisaaSuoritus('Iines','Ankka','T200123',3);
+
+ Aliohjelma: BEGIN -- Aliohjelma on LOOP-label,LEAVE:lla poistutaan
+
+DECLARE OpiskID INT DEFAULT 0;
+DECLARE OpjaksoID INT DEFAULT 0;
+
+-- Määrittele itse lisää tarpeen mukaan...
+-- Jos löytyi, opiskelijan päävain tallettuu muuttujaan OpiskID > 0
+SELECT idOpiskelija INTO OpiskID FROM opiskelija WHERE Etunimi=En AND Sukunimi=Sn;
+
+-- Jos OpiskID jäi nollaksi, opiskelijaa ei löytynyt. Voidaan lopettaa suoritus.
+IF OpiskID=0 THEN 
+     SELECT 'Opiskelijaa ei ole'; -- Tulostetaan viesti käyttäjälle
+     LEAVE Aliohjelma;
+END IF;
+
+-- Samanlainen juttu tehtävä opintojaksolle
+SELECT idOpintojakso INTO OpjaksoID FROM opintojakso WHERE Koodi = KK;
+
+IF OpjaksoID=0 THEN 
+     SELECT 'Opintojaksoa ei ole'; -- Tulostetaan viesti käyttäjälle
+     LEAVE Aliohjelma;
+END IF;
+
+-- Tarkista, että muuttuja Arvos on välillä 0 - 5
+IF Arvosana < 0 OR Arvosana > 5 THEN
+     SELECT 'Arvosanan tulee olla välillä 0 - 5'; -- Tulostetaan viesti käyttäjälle
+     LEAVE Aliohjelma;
+END IF;
+
+-- Lopuksi, jos opiskelija ja opintojakso on olemassa ja arvosana on järkevä
+
+--  INSERT-lause, jolla syötät tiedot Arviointi-tauluun
+
+INSERT INTO arviointi (Paivamaara, Arvosana, idOpiskelija, idOpintojakso)
+VALUES(CURDATE(),Arvosana,OpiskID,OpjaksoID);
+SELECT 'Suoritus lisätty'; -- Tulostetaan viesti käyttäjälle
+
+END $$ --lopettaa aliohjelman, alussa DELIMITER $$ blockkaa puolipisteet
+
+DELIMITER ; -- palauttaa puolipisteen normaaliksi
+
+--lisätään suoritus aliohjelman kautta, T20045 on kellarihumppa
+CALL LisaaSuoritus ('Iines','Ankka','T20045',5);
+
+--tarkistetaan tulos
+SELECT o.Etunimi,o.Sukunimi,
+oj.Koodi AS Kurssikoodi, oj.Nimi AS KurssinNimi,
+a.Arvosana, a.Paivamaara FROM arviointi a
+JOIN opiskelija o ON a.idOpiskelija = o.idOpiskelija
+JOIN opintojakso oj ON a.idOpintojakso = oj.idOpintojakso
+WHERE o.Etunimi = 'Iines' AND o.Sukunimi = 'Ankka';
++---------+----------+-------------+---------------+----------+------------+
+| Etunimi | Sukunimi | Kurssikoodi | KurssinNimi   | Arvosana | Paivamaara |
++---------+----------+-------------+---------------+----------+------------+
+| Iines   | Ankka    | T20041      | Tietokannat   |        4 | 2014-09-05 |
+| Iines   | Ankka    | T20043      | Fysiikka 3    |        3 | 2014-09-05 |
+| Iines   | Ankka    | T20045      | Kellarihumppa |        5 | 2025-11-30 |
++---------+----------+-------------+---------------+----------+------------+
